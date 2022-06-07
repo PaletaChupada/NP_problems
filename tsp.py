@@ -1,3 +1,11 @@
+'''
+Titulo: Problema del viajero (TSP)
+Descripcion: Este programa realiza el calculo del camino minimo dentro de un grafo
+             partiendo del problema del viajero o tambien llamado TSP, en este caso el 
+             programa realiza el llenado de los camionos aleatoriamente entre 0 y 50
+Autor: Espinoza Bautista Daniel
+Fecha: 7 de Junio del 2022
+'''
 
 # Importamos las librerias necesarias
 from time import time
