@@ -100,6 +100,3 @@ tiempo_in = time()
 print("\nEl circuito de Euler es: ")
 printCircuit(adj1)
 
-# Calculamos el tiempo que tarda en ejecutarse y lo imprimimos
-tiempo_fin = time() - tiempo_in
-print("\n\nTiempo de ejecucion: %.10f segundos." %tiempo_fin)
