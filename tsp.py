@@ -1,14 +1,22 @@
+
+# Importamos las librerias necesarias
+from time import time
 import math
+import random
+
+# Definimos el valor maximo como flotante
 maxsize = float('inf')
   
 # Function to copy temporary solution
 # to the final solution
+# Funcion para copiar temporalmente la solucion
+# final
 def copyToFinal(curr_path):
     final_path[:N + 1] = curr_path[:]
     final_path[N] = curr_path[0]
-  
-# Function to find the minimum edge cost 
-# having an end at the vertex i
+
+# Funcion que encuentra el costo minimo de la arista
+# que termina en el vertice i
 def firstMin(adj, i):
     min = maxsize
     for k in range(N):
@@ -17,8 +25,8 @@ def firstMin(adj, i):
   
     return min
   
-# function to find the second minimum edge 
-# cost having an end at the vertex i
+# Funcion para encontrar el segundo costo minimo
+# de la arista que termina en el vertice i
 def secondMin(adj, i):
     first, second = maxsize, maxsize
     for j in range(N):
@@ -33,49 +41,47 @@ def secondMin(adj, i):
             second = adj[i][j]
   
     return second
-  
-# function that takes as arguments:
-# curr_bound -> lower bound of the root node
-# curr_weight-> stores the weight of the path so far
-# level-> current level while moving
-# in the search space tree
-# curr_path[] -> where the solution is being stored
-# which would later be copied to final_path[]
+
+# Funcion que toma como argumentos:
+# el limite bajo del nodo raiz
+# el peso del camino actual
+# el nivel actual mientras se busca en el arbol
+# en donde se guardara la solucion 
+# que finalmente sera copiada a la variable de camino actual
 def TSPRec(adj, curr_bound, curr_weight, 
               level, curr_path, visited):
     global final_res
       
-    # base case is when we have reached level N 
-    # which means we have covered all the nodes once
+    # Caso base donde llegamos a todos los niveles de N
+    # lo que significa que ya se cubrio todos los nodos una vez
     if level == N:
           
-        # check if there is an edge from
-        # last vertex in path back to the first vertex
+        # Revisamos si existe un vertice desde 
+        # el ultimo vertice del camio hasta el primero
         if adj[curr_path[level - 1]][curr_path[0]] != 0:
-              
-            # curr_res has the total weight
-            # of the solution we got
+
+            # Guardamos el peso total de la solucion 
+            # o del camino solucion
             curr_res = curr_weight + adj[curr_path[level - 1]]\
                                         [curr_path[0]]
             if curr_res < final_res:
                 copyToFinal(curr_path)
                 final_res = curr_res
         return
-  
-    # for any other level iterate for all vertices
-    # to build the search space tree recursively
+
+    # Para todos los niveles de iteracion para todos los vertices
+    # realizamos la construccion de un arbol de busqueda recursivo
     for i in range(N):
           
-        # Consider next vertex if it is not same 
-        # (diagonal entry in adjacency matrix and 
-        #  not visited already)
+        # Cosideramos el siguiente vertice si no es el mismo
+        # (entrada diagonal en la matriz de adyacencia y no visitado aun)
         if (adj[curr_path[level-1]][i] != 0 and
                             visited[i] == False):
             temp = curr_bound
             curr_weight += adj[curr_path[level - 1]][i]
-  
-            # different computation of curr_bound 
-            # for level 2 from the other levels
+
+            # Realizamos el calculo del nuevo limite inferior
+            # para el nivel 2 de los otros niveles
             if level == 1:
                 curr_bound -= ((firstMin(adj, curr_path[level - 1]) + 
                                 firstMin(adj, i)) / 2)
@@ -83,78 +89,91 @@ def TSPRec(adj, curr_bound, curr_weight,
                 curr_bound -= ((secondMin(adj, curr_path[level - 1]) +
                                  firstMin(adj, i)) / 2)
   
-            # curr_bound + curr_weight is the actual lower bound 
-            # for the node that we have arrived on.
-            # If current lower bound < final_res, 
-            # we need to explore the node further
+            # Obtenemos el nuevo limite inferior partiendo del nodo
+            # al que acabamos de llegar
             if curr_bound + curr_weight < final_res:
                 curr_path[level] = i
                 visited[i] = True
-                  
-                # call TSPRec for the next level
+
+                # Llamamos a la llamada recursiva para el siguiente
+                # nivel
                 TSPRec(adj, curr_bound, curr_weight, 
                        level + 1, curr_path, visited)
   
-            # Else we have to prune the node by resetting 
-            # all changes to curr_weight and curr_bound
+            # Cortamos el nodo reseteando todos sus cambios en su
+            # peso actual y en sus otros nodos ligados a el
             curr_weight -= adj[curr_path[level - 1]][i]
             curr_bound = temp
   
-            # Also reset the visited array
+            # Reiniciamos el arreglo de visitados
             visited = [False] * len(visited)
             for j in range(level):
                 if curr_path[j] != -1:
                     visited[curr_path[j]] = True
   
-# This function sets up final_path
+# Funcion para tomar el camino final
 def TSP(adj):
       
-    # Calculate initial lower bound for the root node 
-    # using the formula 1/2 * (sum of first min + 
-    # second min) for all edges. Also initialize the 
-    # curr_path and visited array
+    # Calculamos el limite inicial para el nodo raiz
+    # para todos los vertices e inicializamos el arreglo
+    # de camino actual y el arreglo de visitados
     curr_bound = 0
     curr_path = [-1] * (N + 1)
     visited = [False] * N
   
-    # Compute initial bound
+    # Computamos el limite inicial
     for i in range(N):
         curr_bound += (firstMin(adj, i) + 
                        secondMin(adj, i))
   
-    # Rounding off the lower bound to an integer
+    # Redondeamos el limite inferior a un entero
     curr_bound = math.ceil(curr_bound / 2)
   
-    # We start at vertex 1 so the first vertex 
-    # in curr_path[] is 0
+    # Empezamos desde el vertice 1 para que el 
+    # primer vertice del camino actual sea 0
     visited[0] = True
     curr_path[0] = 0
   
-    # Call to TSPRec for curr_weight 
-    # equal to 0 and level 1
+    # Llamamos a la funcion recursiva para los pesos actuales
     TSPRec(adj, curr_bound, 0, 1, curr_path, visited)
   
-# Driver code
+# Solicitamos al usuario que digite la cantidad de nodos que tendra el grafo
+N = int(input("Digite la cantidad de nodos: "))
   
-# Adjacency matrix for the given graph
-adj = [[0,3,0,3,0,0,0],[3,0,1,3,2,0,0],[0,1,0,2,3,2,0],[3,3,2,0,0,1,3],[0,2,3,0,0,3,0],[0,0,2,1,3,0,2],[0,0,0,3,0,2,0]]
-N = 7
+# Creamos el grafo en forma de matriz con numeros random
+adj = [[0 for x in range(N)] for y in range(N)]
+for i in range(N):
+    for j in range(N):
+        if j==i:
+            adj[i][j]=0
+        else:
+            aux = random.randint(0,50)
+            adj[i][j] = aux
+
+# Imprimos el grafo creado
+print("\nGrafo generado: \n",adj)
   
-# final_path[] stores the final solution 
-# i.e. the // path of the salesman.
+# Guardamos la solucion final en una lista
 final_path = [None] * (N + 1)
   
-# visited[] keeps track of the already
-# visited nodes in a particular path
+# Mantenemos la lista de los nodos ya visitados
 visited = [False] * N
   
-# Stores the final minimum weight
-# of shortest tour.
+# Guardamos el peso final del camino mas corto
 final_res = maxsize
-  
+
+# Inicializamos la variable para contar el tiempo de ejecucion
+tiempo_in = time()
+
+# Realizamos el calculo del camino mas corto
 TSP(adj)
-  
-print("Camino minimo :", final_res)
-print("Camino tomado : ", end = ' ')
+
+# Imprimimos el camino mas corto y la ruta  
+print("\nCamino más corto:", final_res)
+print("Ruta tomada: ", end = ' ')
 for i in range(N + 1):
     print(final_path[i], end = ' ')
+
+# Calculamos el tiempo que tarda en ejecutarse y lo imprimimos
+tiempo_fin = time() - tiempo_in
+print("\n\nTiempo de ejecucion: %.10f segundos." %tiempo_fin)
